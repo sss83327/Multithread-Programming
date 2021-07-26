@@ -2,16 +2,17 @@
 #include <fstream>
 #include <iomanip>
 #include <cstdlib>
-#include <unistd.h>
+//#include <unistd.h>
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/time.h>
+//#include <sys/time.h>
 
 char **map;
 
 using namespace std;
+
 
 
 struct thread_data
@@ -23,6 +24,13 @@ struct thread_data
 	int direction;
 };
 
+std::ostream& operator<<(std::ostream& out, const pthread_t t)
+{
+	//unsigned long int x = t.x;
+	out << t.p; // for example
+	return out;
+}
+
 void *sideroad2(void *data)
 {
 	struct thread_data temp = * (struct thread_data*) data;
@@ -30,8 +38,10 @@ void *sideroad2(void *data)
 	int bot_y = temp.bot_y;
 	int tbot_x = bot_x;
 	int tbot_y = bot_y;
-	cout << "[tid=" << pthread_self() << "] : (" <<  bot_x << "," << bot_y <<')'<< endl;
-	
+	pthread_t t = pthread_self();
+	//printf("[tid= %d ]", pthread_self(),);
+	cout << "[tid= "<< t << "] : (" <<  bot_x << "," << bot_y <<')'<< endl;
+	//cout << bot_x << "," << bot_y << endl;
 	if ( temp.direction == 1 )
 		bot_x--;
 	else if ( temp.direction == 2 )
@@ -76,7 +86,8 @@ void *sideroad2(void *data)
 		if ( sideroad == 1 ){  // END
 			//cout << "NONE" ;
 			//pthread_exit((void*)0);
-			cout << temp.threadid <<  " (" << bot_x << ',' << bot_y << ") None!"<< endl ;
+			//printf("[tid= %d ] : (%d,%d) None! \n", temp.threadid, bot_x, bot_y);
+			cout << pthread_self() <<  " (" << bot_x << ',' << bot_y << ") None!"<< endl ;
 			break;
 		}
 		
@@ -164,6 +175,7 @@ void *sideroad2(void *data)
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x+1][bot_y] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d)\n", pthread_self(), bot_x+1, bot_y);
 				cout << pthread_self() <<  " (" << bot_x+1 << ',' << bot_y << ") Found!"<< endl ;
 				pthread_exit((void*)1);
 				break;
@@ -178,6 +190,7 @@ void *sideroad2(void *data)
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x][bot_y+1] == 'K' )
 			{
+				//////printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x, bot_y+1);
 				cout << pthread_self() <<  " (" << bot_x << ',' << bot_y+1 << ") Found!"<< endl ;
 				pthread_exit((void*)1);
 				break;
@@ -193,6 +206,7 @@ void *sideroad2(void *data)
 			//sleep(1);
 			if ( map[bot_x-1][bot_y] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d)\n", pthread_self(), bot_x-1, bot_y);
 				cout << pthread_self() <<  " (" << bot_x-1 << ',' << bot_y << ") Found!"<< endl ;
 				pthread_exit((void*)1);
 				break;
@@ -208,6 +222,7 @@ void *sideroad2(void *data)
 			//sleep(1);
 			if ( map[bot_x][bot_y-1] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x , bot_y-1);
 				cout << pthread_self() <<  " (" << bot_x << ',' << bot_y-1 << ") Found!"<< endl ;
 				pthread_exit((void*)1);
 				break;
@@ -215,14 +230,15 @@ void *sideroad2(void *data)
 		}
 		
 	}
+	return 0;
 }
 
 
 
 int main()
 {
-	struct timeval tv1, tv2;
-	gettimeofday( &tv1, NULL);
+	//struct timeval tv1, tv2;
+	//gettimeofday( &tv1, NULL);
 	
 	ifstream infile;// ("map.txt", ios::in);
 	infile.open("map.txt", ios::in);
@@ -266,7 +282,8 @@ int main()
 	bot_y = start_y;	
 	tbot_x = bot_x;
 	tbot_y = bot_y;
-	cout << "[tid=" << pthread_self() << "] : (" <<  bot_x << "," << bot_y <<')'<< endl;
+	//printf("[tid= %d ] : (%d,%d)\n", pthread_self(), bot_x, bot_y);
+	cout << "[tid= " << pthread_self() << "] : (" <<  bot_x << "," << bot_y <<')'<< endl;
 	int stop = 0 ;
 	
 	while(stop == 0)
@@ -356,6 +373,7 @@ int main()
 			pthread_join(temp1,&exit1);	
 			pthread_join(temp2,&exit2);
 			if ( (int)exit1 == 1  || (int)exit2 == 1)
+				//printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x, bot_y);
 				cout << pthread_self() <<  " (" << bot_x << ',' << bot_y << ") Found!"<< endl ;
 			//if ( (int)exit1 == 0  || (int)exit2 == 0)
 			//	cout << pthread_self() <<  " (" << bot_x << ',' << bot_y << ") None!"<< endl ;
@@ -374,6 +392,7 @@ int main()
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x+1][bot_y] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d)\n Found! ", pthread_self(), bot_x+1, bot_y);
 				cout << pthread_self() <<  " (" << bot_x+1 << ',' << bot_y << ") Found!"<< endl ;		
 				break;
 			}
@@ -387,6 +406,7 @@ int main()
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x][bot_y+1] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x, bot_y+1);
 				cout << pthread_self() <<  " (" << bot_x << ',' << bot_y+1 << ") Found!"<< endl ;
 				break;
 			}
@@ -400,6 +420,7 @@ int main()
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x-1][bot_y] == 'K' )
 			{
+				///printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x-1, bot_y);
 				cout << pthread_self() <<  " (" << bot_x-1 << ',' << bot_y << ") Found!"<< endl ;
 				break;
 			}	
@@ -413,6 +434,7 @@ int main()
 			//cout << bot_x << "   	" << bot_y <<  "  ||  " << tbot_x << "   	" << tbot_y<<endl;
 			if ( map[bot_x][bot_y-1] == 'K' )
 			{
+				//printf("[tid= %d ] : (%d,%d) Found! \n", pthread_self(), bot_x, bot_y-1);
 				cout << pthread_self() <<  " (" << bot_x << ',' << bot_y-1 << ") Found!"<< endl ;
 				break;
 			}
@@ -427,8 +449,8 @@ int main()
 	
 
 	infile.close();
-	gettimeofday(&tv2,NULL);
-	cout << "Total: " << (tv2.tv_usec  - tv1.tv_usec)/1000 <<"ms."  << endl;
+	//gettimeofday(&tv2,NULL);
+	//cout << "Total: " << (tv2.tv_usec  - tv1.tv_usec)/1000 <<"ms."  << endl;
     
 }
 
